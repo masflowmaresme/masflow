@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MASFLOW — Admin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Chivo:ital,opsz,wght@0,6..72,300;0,6..72,400;1,6..72,300&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:     #F0EAE0;
+  --bg2:    #E5DDD2;
+  --ink:    #0F0F0D;
+  --fucsia: #E2003E;
+  --limon:  #AACC00;
+  --naranja:#E86400;
+  --lila:   #8B00D8;
+  --rosa:   #E8408A;
+  --muted:  rgba(15,15,13,.45);
+  --line:   rgba(15,15,13,.1);
+  --red:    #cc0030;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:16px}
+body{background:var(--bg);color:var(--ink);font-family:'Chivo',sans-serif;font-weight:300;min-height:100vh;-webkit-font-smoothing:antialiased}
+
+/* ── TOP BAR ── */
+.topbar{
+  position:sticky;top:0;z-index:100;
+  background:var(--ink);height:52px;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;border-bottom:2px solid var(--fucsia);
+}
+.topbar-logo{font-family:'Oswald',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#F0EAE0;text-decoration:none}
+.topbar-logo span{color:var(--fucsia)}
+.topbar-right{display:flex;align-items:center;gap:16px}
+.topbar-link{font-family:'Oswald',sans-serif;font-size:.6rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;color:rgba(240,234,224,.5);text-decoration:none;transition:color .15s}
+.topbar-link:hover{color:#F0EAE0}
+.btn-new{font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;background:var(--fucsia);color:#fff;border:none;padding:8px 18px;cursor:pointer;transition:background .15s}
+.btn-new:hover{background:var(--red)}
+
+/* ── LAYOUT ── */
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:calc(100vh - 52px)}
+
+/* ── SIDEBAR ── */
+.sidebar{border-right:1px solid var(--line);padding:32px 0;background:var(--bg2)}
+.sidebar-section{margin-bottom:8px}
+.sidebar-label{font-family:'Oswald',sans-serif;font-size:.5rem;font-weight:500;letter-spacing:.22em;text-transform:uppercase;color:var(--muted);padding:6px 24px 10px;display:block}
+.sidebar-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 24px;cursor:pointer;transition:background .15s;
+  border-left:3px solid transparent;
+}
+.sidebar-item:hover{background:rgba(15,15,13,.06)}
+.sidebar-item.active{background:var(--bg);border-left-color:var(--fucsia)}
+.sidebar-item-name{font-family:'Oswald',sans-serif;font-size:.8rem;font-weight:500;letter-spacing:.04em;text-transform:uppercase;color:var(--ink)}
+.sidebar-item.active .sidebar-item-name{color:var(--fucsia)}
+.sidebar-badge{font-family:'Oswald',sans-serif;font-size:.52rem;font-weight:600;letter-spacing:.06em;color:var(--muted);background:rgba(15,15,13,.08);padding:2px 7px;border-radius:2px}
+.sidebar-divider{height:1px;background:var(--line);margin:16px 24px}
+
+/* ── MAIN PANEL ── */
+.panel{padding:40px 44px}
+.panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;padding-bottom:20px;border-bottom:1px solid var(--line)}
+.panel-title{font-family:'Oswald',sans-serif;font-size:1.6rem;font-weight:700;letter-spacing:-.01em;text-transform:uppercase;color:var(--ink)}
+.panel-title span{color:var(--fucsia)}
+.panel-count{font-family:'Chivo',sans-serif;font-size:.6rem;font-weight:300;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+/* ── ENTRIES TABLE ── */
+.entries{display:flex;flex-direction:column;gap:2px}
+.entry{
+  background:var(--bg);border:1px solid var(--line);
+  display:grid;grid-template-columns:60px 1fr auto auto;
+  align-items:center;gap:16px;padding:14px 18px;
+  transition:background .15s;
+}
+.entry:hover{background:var(--bg2)}
+.entry-cover{width:40px;height:54px;object-fit:cover;display:block;background:var(--bg2);border:1px solid var(--line);flex-shrink:0}
+.entry-cover-empty{width:40px;height:54px;background:var(--bg2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.entry-cover-empty span{font-size:.55rem;color:var(--muted);letter-spacing:.1em;text-align:center;line-height:1.3}
+.entry-info{}
+.entry-title{font-family:'Oswald',sans-serif;font-size:.9rem;font-weight:600;letter-spacing:-.005em;color:var(--ink);margin-bottom:3px}
+.entry-meta{font-size:.58rem;font-weight:300;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.entry-cat{font-family:'Oswald',sans-serif;font-size:.52rem;font-weight:500;letter-spacing:.16em;text-transform:uppercase;padding:2px 8px;border:1.5px solid;align-self:center}
+.entry-actions{display:flex;gap:6px}
+.btn-edit,.btn-del{font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;padding:5px 12px;border:1.5px solid;background:transparent;cursor:pointer;transition:all .15s}
+.btn-edit{border-color:var(--line);color:var(--muted)}
+.btn-edit:hover{border-color:var(--ink);color:var(--ink)}
+.btn-del{border-color:transparent;color:var(--muted)}
+.btn-del:hover{border-color:var(--red);color:var(--red)}
+
+.empty-state{padding:64px 0;text-align:center}
+.empty-state p{font-size:.8rem;font-style:italic;color:var(--muted);margin-bottom:20px}
+
+/* ── MODAL / FORM ── */
+.overlay{position:fixed;inset:0;z-index:500;background:rgba(15,15,13,.75);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .22s}
+.overlay.open{opacity:1;pointer-events:all}
+.form-panel{background:var(--bg);border:1px solid var(--line);width:min(660px,95vw);max-height:90vh;overflow-y:auto;display:flex;flex-direction:column;transform:translateY(18px);transition:transform .22s}
+.overlay.open .form-panel{transform:none}
+.form-header{display:flex;align-items:center;justify-content:space-between;padding:24px 28px;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--bg);z-index:2}
+.form-title{font-family:'Oswald',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:-.01em;text-transform:uppercase}
+.btn-close{background:none;border:none;cursor:pointer;font-family:'Chivo',sans-serif;font-size:.6rem;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);transition:color .15s}
+.btn-close:hover{color:var(--ink)}
+.form-body{padding:28px;display:flex;flex-direction:column;gap:20px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.field{display:flex;flex-direction:column;gap:7px}
+.field.full{grid-column:span 2}
+label{font-family:'Oswald',sans-serif;font-size:.55rem;font-weight:500;letter-spacing:.2em;text-transform:uppercase;color:var(--muted)}
+input[type=text],input[type=url],textarea,select{
+  font-family:'Chivo',sans-serif;font-size:.82rem;font-weight:300;
+  background:var(--bg2);border:1px solid var(--line);color:var(--ink);
+  padding:10px 13px;outline:none;transition:border-color .15s;
+  appearance:none;-webkit-appearance:none;width:100%;
+}
+input[type=text]:focus,input[type=url]:focus,textarea:focus,select:focus{border-color:var(--fucsia)}
+textarea{resize:vertical;min-height:80px;line-height:1.6}
+select option{background:var(--bg)}
+
+/* COVER UPLOAD */
+.cover-upload{display:flex;gap:16px;align-items:flex-start}
+.cover-preview{width:80px;height:108px;background:var(--bg2);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;flex-shrink:0;overflow:hidden}
+.cover-preview img{width:100%;height:100%;object-fit:cover}
+.cover-preview-empty{font-size:.5rem;color:var(--muted);letter-spacing:.1em;text-align:center;line-height:1.5;padding:8px}
+.cover-upload-right{flex:1;display:flex;flex-direction:column;gap:8px}
+.upload-zone{border:1.5px dashed var(--line);padding:20px;text-align:center;cursor:pointer;transition:border-color .18s;position:relative}
+.upload-zone:hover{border-color:var(--fucsia)}
+.upload-zone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upload-zone p{font-size:.62rem;font-style:italic;color:var(--muted);line-height:1.6}
+.upload-zone strong{font-style:normal;color:var(--fucsia);font-weight:400}
+.cover-url-sep{font-size:.56rem;text-align:center;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+
+/* FORM FOOTER */
+.form-footer{padding:20px 28px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px;position:sticky;bottom:0;background:var(--bg)}
+.btn-cancel{font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;background:transparent;border:1.5px solid var(--line);color:var(--muted);padding:10px 20px;cursor:pointer;transition:all .15s}
+.btn-cancel:hover{border-color:var(--ink);color:var(--ink)}
+.btn-save{font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;background:var(--fucsia);border:none;color:#fff;padding:10px 24px;cursor:pointer;transition:background .15s}
+.btn-save:hover{background:var(--red)}
+
+/* confirm modal */
+.confirm-panel{background:var(--bg);border:1px solid var(--line);width:min(400px,92vw);padding:36px;transform:translateY(18px);transition:transform .22s;text-align:center}
+.overlay.open .confirm-panel{transform:none}
+.confirm-panel h3{font-family:'Oswald',sans-serif;font-size:1.1rem;font-weight:700;letter-spacing:-.01em;margin-bottom:12px}
+.confirm-panel p{font-size:.76rem;font-style:italic;color:var(--muted);line-height:1.6;margin-bottom:28px}
+.confirm-btns{display:flex;gap:10px}
+.btn-confirm-del{flex:1;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;background:var(--fucsia);border:none;color:#fff;padding:11px 0;cursor:pointer;transition:background .15s}
+.btn-confirm-del:hover{background:var(--red)}
+.btn-confirm-cancel{flex:1;font-family:'Oswald',sans-serif;font-size:.62rem;font-weight:500;letter-spacing:.14em;text-transform:uppercase;background:transparent;border:1.5px solid var(--line);color:var(--muted);padding:11px 0;cursor:pointer;transition:all .15s}
+.btn-confirm-cancel:hover{border-color:var(--ink);color:var(--ink)}
+
+/* toast */
+.toast{position:fixed;bottom:28px;right:28px;z-index:900;background:var(--ink);color:#F0EAE0;font-family:'Oswald',sans-serif;font-size:.65rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;padding:12px 22px;opacity:0;pointer-events:none;transition:opacity .25s, transform .25s;transform:translateY(10px)}
+.toast.show{opacity:1;transform:none}
+.toast.ok{border-bottom:2px solid var(--limon)}
+.toast.err{border-bottom:2px solid var(--fucsia)}
+
+/* section colour dots */
+.dot-f{background:var(--fucsia)}
+.dot-n{background:var(--naranja)}
+.dot-l{background:var(--lila)}
+.dot-r{background:var(--rosa)}
+.sect-dot{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:8px}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="topbar-logo" href="masflow_portal.html">MAS<span>FLOW</span></a>
+  <div class="topbar-right">
+    <a class="topbar-link" href="masflow_portal.html" target="_blank">← Veure portal</a>
+    <button class="btn-new" onclick="openForm()">+ Nova entrada</button>
+  </div>
+</div>
+
+<div class="layout">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <span class="sidebar-label">Seccions</span>
+      <div class="sidebar-item active" onclick="filterSection('all')">
+        <span class="sidebar-item-name">Tot el fons</span>
+        <span class="sidebar-badge" id="badge-all">0</span>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-item" onclick="filterSection('Feminisme')">
+        <span class="sidebar-item-name"><span class="sect-dot dot-f"></span>Feminisme</span>
+        <span class="sidebar-badge" id="badge-Feminisme">0</span>
+      </div>
+      <div class="sidebar-item" onclick="filterSection('Migració')">
+        <span class="sidebar-item-name"><span class="sect-dot dot-n"></span>Migració</span>
+        <span class="sidebar-badge" id="badge-Migració">0</span>
+      </div>
+      <div class="sidebar-item" onclick="filterSection('Política')">
+        <span class="sidebar-item-name"><span class="sect-dot dot-l"></span>Política</span>
+        <span class="sidebar-badge" id="badge-Política">0</span>
+      </div>
+      <div class="sidebar-item" onclick="filterSection('Fanzines')">
+        <span class="sidebar-item-name"><span class="sect-dot dot-r"></span>Fanzines</span>
+        <span class="sidebar-badge" id="badge-Fanzines">0</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="panel">
+    <div class="panel-header">
+      <div>
+        <div class="panel-title" id="panel-title">Tot el <span>fons</span></div>
+        <div class="panel-count" id="panel-count">0 entrades</div>
+      </div>
+    </div>
+    <div class="entries" id="entries-list"></div>
+  </main>
+</div>
+
+<!-- FORM OVERLAY -->
+<div class="overlay" id="overlay-form" onclick="closeFormOnBg(event)">
+  <div class="form-panel">
+    <div class="form-header">
+      <div class="form-title" id="form-title">Nova entrada</div>
+      <button class="btn-close" onclick="closeForm()">Tancar ✕</button>
+    </div>
+    <div class="form-body">
+      <div class="field full">
+        <label>Portada</label>
+        <div class="cover-upload">
+          <div class="cover-preview" id="cover-preview">
+            <div class="cover-preview-empty">Sense portada</div>
+          </div>
+          <div class="cover-upload-right">
+            <div class="upload-zone">
+              <input type="file" accept="image/*" id="cover-file" onchange="handleCoverFile(event)">
+              <p><strong>Clica per pujar una imatge</strong><br>JPG, PNG, WebP · Màx 2MB</p>
+            </div>
+            <div class="cover-url-sep">o bé</div>
+            <input type="url" id="cover-url" placeholder="URL externa de la imatge" oninput="handleCoverUrl(this.value)">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label>Títol *</label>
+          <input type="text" id="f-title" placeholder="Títol del text o fanzine" required>
+        </div>
+        <div class="field">
+          <label>Autoria</label>
+          <input type="text" id="f-author" placeholder="Autor/a o col·lectiu">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label>Secció *</label>
+          <select id="f-section">
+            <option value="">— Selecciona —</option>
+            <option value="Feminisme">Feminisme</option>
+            <option value="Migració">Migració</option>
+            <option value="Política">Política</option>
+            <option value="Fanzines">Fanzines</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Categoria / Etiqueta</label>
+          <input type="text" id="f-cat" placeholder="ex: Assaig, Teoria Queer, Fanzine…">
+        </div>
+      </div>
+
+      <div class="field full">
+        <label>Descripció</label>
+        <textarea id="f-desc" placeholder="Breu descripció del contingut…"></textarea>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label>Mida de l'arxiu</label>
+          <input type="text" id="f-size" placeholder="ex: 1.2 MB">
+        </div>
+        <div class="field">
+          <label>Any</label>
+          <input type="text" id="f-year" placeholder="ex: 2024">
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label>Enllaç per llegir online</label>
+          <input type="url" id="f-read-url" placeholder="https://…">
+        </div>
+        <div class="field">
+          <label>Enllaç de descàrrega PDF</label>
+          <input type="url" id="f-dl-url" placeholder="https://…">
+        </div>
+      </div>
+
+      <div class="field full">
+        <label>Destacat</label>
+        <select id="f-featured">
+          <option value="no">No destacat</option>
+          <option value="yes">Sí, destacar a la secció</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-footer">
+      <button class="btn-cancel" onclick="closeForm()">Cancel·lar</button>
+      <button class="btn-save" onclick="saveEntry()">Guardar entrada</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE OVERLAY -->
+<div class="overlay" id="overlay-confirm" onclick="closeConfirmOnBg(event)">
+  <div class="confirm-panel">
+    <h3>Eliminar entrada</h3>
+    <p>Aquesta acció no es pot desfer. L'entrada s'eliminarà permanentment del fons.</p>
+    <div class="confirm-btns">
+      <button class="btn-confirm-cancel" onclick="closeConfirm()">Cancel·lar</button>
+      <button class="btn-confirm-del" onclick="confirmDelete()">Sí, eliminar</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── DATA LAYER ──
+const STORE_KEY = 'masflow_entries';
+
+function getEntries() {
+  try { return JSON.parse(localStorage.getItem(STORE_KEY) || '[]'); }
+  catch { return []; }
+}
+function saveEntries(entries) {
+  localStorage.setItem(STORE_KEY, JSON.stringify(entries));
+}
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+
+// ── STATE ──
+let currentSection = 'all';
+let editingId = null;
+let pendingDeleteId = null;
+let coverData = null; // base64 or url
+
+const SECTION_COLORS = {
+  'Feminisme': '#E2003E',
+  'Migració':  '#E86400',
+  'Política':  '#8B00D8',
+  'Fanzines':  '#E8408A',
+};
+
+// ── RENDER ──
+function render() {
+  const all = getEntries();
+  const filtered = currentSection === 'all'
+    ? all
+    : all.filter(e => e.section === currentSection);
+
+  // Update badges
+  document.getElementById('badge-all').textContent = all.length;
+  ['Feminisme','Migració','Política','Fanzines'].forEach(s => {
+    const el = document.getElementById('badge-' + s);
+    if (el) el.textContent = all.filter(e => e.section === s).length;
+  });
+
+  // Panel title
+  const titleEl = document.getElementById('panel-title');
+  titleEl.innerHTML = currentSection === 'all'
+    ? 'Tot el <span>fons</span>'
+    : `<span>${currentSection}</span>`;
+  document.getElementById('panel-count').textContent = `${filtered.length} entrade${filtered.length !== 1 ? 's' : ''}`;
+
+  // Sidebar active
+  document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
+  const activeItems = document.querySelectorAll('.sidebar-item');
+  activeItems.forEach(item => {
+    const name = item.querySelector('.sidebar-item-name').textContent.trim();
+    if (currentSection === 'all' && name === 'Tot el fons') item.classList.add('active');
+    if (name.includes(currentSection)) item.classList.add('active');
+  });
+
+  // Entries list
+  const list = document.getElementById('entries-list');
+  if (filtered.length === 0) {
+    list.innerHTML = `<div class="empty-state">
+      <p>Cap entrada en aquesta secció. Crea la primera entrada!</p>
+      <button class="btn-new" onclick="openForm()">+ Nova entrada</button>
+    </div>`;
+    return;
+  }
+
+  list.innerHTML = filtered.map(e => {
+    const color = SECTION_COLORS[e.section] || '#E2003E';
+    const coverHTML = e.cover
+      ? `<img class="entry-cover" src="${e.cover}" alt="" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">`
+        + `<div class="entry-cover-empty" style="display:none"><span>Sense portada</span></div>`
+      : `<div class="entry-cover-empty"><span>Sense<br>portada</span></div>`;
+    return `<div class="entry">
+      <div style="display:contents">${coverHTML}</div>
+      <div class="entry-info">
+        <div class="entry-title">${e.title}</div>
+        <div class="entry-meta">${e.section}${e.author ? ' · ' + e.author : ''}${e.year ? ' · ' + e.year : ''}${e.size ? ' · ' + e.size : ''}</div>
+      </div>
+      <span class="entry-cat" style="color:${color};border-color:${color}">${e.cat || e.section}</span>
+      <div class="entry-actions">
+        <button class="btn-edit" onclick="openForm('${e.id}')">Editar</button>
+        <button class="btn-del" onclick="askDelete('${e.id}')">✕</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── FILTER ──
+function filterSection(s) {
+  currentSection = s;
+  render();
+}
+
+// ── FORM ──
+function openForm(id) {
+  editingId = id || null;
+  coverData = null;
+
+  const title = document.getElementById('form-title');
+  title.textContent = id ? 'Editar entrada' : 'Nova entrada';
+
+  // Reset form
+  ['f-title','f-author','f-section','f-cat','f-desc','f-size','f-year','f-read-url','f-dl-url','f-featured'].forEach(fid => {
+    const el = document.getElementById(fid);
+    if (el) el.value = '';
+  });
+  document.getElementById('cover-url').value = '';
+  document.getElementById('cover-file').value = '';
+  updateCoverPreview(null);
+
+  if (id) {
+    const entry = getEntries().find(e => e.id === id);
+    if (entry) {
+      document.getElementById('f-title').value      = entry.title || '';
+      document.getElementById('f-author').value     = entry.author || '';
+      document.getElementById('f-section').value    = entry.section || '';
+      document.getElementById('f-cat').value        = entry.cat || '';
+      document.getElementById('f-desc').value       = entry.desc || '';
+      document.getElementById('f-size').value       = entry.size || '';
+      document.getElementById('f-year').value       = entry.year || '';
+      document.getElementById('f-read-url').value   = entry.readUrl || '';
+      document.getElementById('f-dl-url').value     = entry.dlUrl || '';
+      document.getElementById('f-featured').value   = entry.featured || 'no';
+      if (entry.cover) {
+        coverData = entry.cover;
+        updateCoverPreview(entry.cover);
+        if (entry.cover.startsWith('http')) document.getElementById('cover-url').value = entry.cover;
+      }
+    }
+  }
+
+  document.getElementById('overlay-form').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeForm() {
+  document.getElementById('overlay-form').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function closeFormOnBg(e) {
+  if (e.target === document.getElementById('overlay-form')) closeForm();
+}
+
+// ── COVER ──
+function handleCoverFile(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  if (file.size > 2 * 1024 * 1024) { showToast('La imatge supera els 2MB', 'err'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    coverData = ev.target.result;
+    updateCoverPreview(coverData);
+    document.getElementById('cover-url').value = '';
+  };
+  reader.readAsDataURL(file);
+}
+function handleCoverUrl(url) {
+  if (url) {
+    coverData = url;
+    updateCoverPreview(url);
+  } else {
+    coverData = null;
+    updateCoverPreview(null);
+  }
+}
+function updateCoverPreview(src) {
+  const el = document.getElementById('cover-preview');
+  if (src) {
+    el.innerHTML = `<img src="${src}" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<div class=cover-preview-empty>Error de càrrega</div>'">`;
+  } else {
+    el.innerHTML = '<div class="cover-preview-empty">Sense portada</div>';
+  }
+}
+
+// ── SAVE ──
+function saveEntry() {
+  const title   = document.getElementById('f-title').value.trim();
+  const section = document.getElementById('f-section').value;
+  if (!title)   { showToast('El títol és obligatori', 'err'); return; }
+  if (!section) { showToast('Selecciona una secció', 'err'); return; }
+
+  const entries = getEntries();
+  const entry = {
+    id:       editingId || genId(),
+    title,
+    author:   document.getElementById('f-author').value.trim(),
+    section,
+    cat:      document.getElementById('f-cat').value.trim(),
+    desc:     document.getElementById('f-desc').value.trim(),
+    size:     document.getElementById('f-size').value.trim(),
+    year:     document.getElementById('f-year').value.trim(),
+    readUrl:  document.getElementById('f-read-url').value.trim(),
+    dlUrl:    document.getElementById('f-dl-url').value.trim(),
+    featured: document.getElementById('f-featured').value,
+    cover:    coverData || null,
+    updatedAt: Date.now(),
+  };
+
+  if (editingId) {
+    const idx = entries.findIndex(e => e.id === editingId);
+    if (idx > -1) entries[idx] = entry;
+  } else {
+    entry.createdAt = Date.now();
+    entries.push(entry);
+  }
+
+  saveEntries(entries);
+  closeForm();
+  render();
+  showToast(editingId ? 'Entrada actualitzada' : 'Entrada creada', 'ok');
+}
+
+// ── DELETE ──
+function askDelete(id) {
+  pendingDeleteId = id;
+  document.getElementById('overlay-confirm').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeConfirm() {
+  document.getElementById('overlay-confirm').classList.remove('open');
+  document.body.style.overflow = '';
+  pendingDeleteId = null;
+}
+function closeConfirmOnBg(e) {
+  if (e.target === document.getElementById('overlay-confirm')) closeConfirm();
+}
+function confirmDelete() {
+  if (!pendingDeleteId) return;
+  const entries = getEntries().filter(e => e.id !== pendingDeleteId);
+  saveEntries(entries);
+  closeConfirm();
+  render();
+  showToast('Entrada eliminada', 'ok');
+}
+
+// ── TOAST ──
+function showToast(msg, type = 'ok') {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = `toast ${type} show`;
+  setTimeout(() => t.classList.remove('show'), 2800);
+}
+
+// ── KEYBOARD ──
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeForm(); closeConfirm(); }
+});
+
+// ── INIT ──
+render();
+</script>
+</body>
+</html>
